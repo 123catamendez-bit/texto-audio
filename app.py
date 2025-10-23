@@ -3,77 +3,96 @@ import os
 import time
 import glob
 from gtts import gTTS
-from PIL import Image
+# from PIL import Image   # ← Descomenta cuando tengas una imagen
 import base64
 
-# Título con emoji
-st.title("🗣️ Conversión de Texto a Audio 🎧")
+# --- CONFIGURACIÓN GENERAL ---
+st.set_page_config(page_title="🌌 Voz Estelar | IA Galáctica", layout="centered")
 
-# Imagen portada
-image = Image.open("gato_raton.png")
-st.image(image, caption="🐭 Una fábula entre gato y ratón 🐱", use_column_width=True)
+# --- FONDO GALÁCTICO ---
+page_bg = """
+<style>
+[data-testid="stAppViewContainer"] {
+    background-color: #0b0f1a;
+    background-image: radial-gradient(circle at 20% 20%, #16213e, #0b0f1a);
+    color: #e0e0e0;
+}
+[data-testid="stSidebar"] {
+    background-color: #1a1f2e;
+    color: #ffffff;
+}
+h1, h2, h3, p, label {
+    color: #e0e0e0;
+    font-family: 'Trebuchet MS', sans-serif;
+}
+textarea {
+    background-color: #141b2d !important;
+    color: #e0e0e0 !important;
+}
+a, a:visited, a:hover {
+    text-decoration: none;
+}
+</style>
+"""
+st.markdown(page_bg, unsafe_allow_html=True)
 
+# --- TÍTULO ---
+st.title("🪐 Voz Estelar")
+st.markdown("Convierte tus pensamientos en **ondas sonoras cósmicas** y deja que la galaxia te escuche 🌠")
+
+# --- IMAGEN DE PORTADA ---
+# image = Image.open("voz_estelar.jpg")
+# st.image(image, caption="🎧 Transmisión desde la Nebulosa de Orión", use_column_width=True)
+
+# --- SIDEBAR ---
 with st.sidebar:
-    st.subheader("⚙️ Configuración")
-    st.write("Escribe o selecciona un texto para escucharlo convertido en audio.")
+    st.subheader("⚙️ Panel de Comando")
+    st.write("Configura tu idioma interestelar y envía tu mensaje para ser transmitido por voz a través del cosmos.")
 
-# Crear carpeta temporal
-try:
-    os.mkdir("temp")
-except:
-    pass
+# --- CREAR CARPETA TEMPORAL ---
+os.makedirs("temp", exist_ok=True)
 
-# Texto de ejemplo
-st.subheader("📖 Una pequeña Fábula")
+# --- TEXTO DE DEMO ---
+st.subheader("🛰️ Mensaje Intergaláctico de Prueba")
 st.write(
-    "¡Ay! -dijo el ratón-. El mundo se hace cada día más pequeño. "
-    "Al principio era tan grande que le tenía miedo. Corría y corría y "
-    "me alegraba ver esos muros a lo lejos. Pero esas paredes se estrechan "
-    "tan rápido que me encuentro en el último cuarto y ahí en el rincón "
-    "está la trampa sobre la cual debo pasar. "
-    "—Todo lo que debes hacer es cambiar de rumbo —dijo el gato… y se lo comió. "
-    " *(Franz Kafka)*"
+    "\"Capitán, los sensores detectan una nueva forma de comunicación. "
+    "Parece provenir de una inteligencia artificial de voz. "
+    "Procedemos a traducir la transmisión...\""
 )
 
-# Input de texto
-st.markdown("✍️ **Escribe el texto que quieras escuchar en audio:**")
-text = st.text_area("Ingrese el texto aquí")
+# --- INPUT DE TEXTO ---
+st.markdown("💬 **Escribe tu mensaje estelar para convertirlo en voz:**")
+text = st.text_area("📡 Ingrese el texto aquí", placeholder="Ejemplo: 'Bienvenido al universo de la Inteligencia Artificial Galáctica'")
 
-# Selector de idioma con banderas
+# --- SELECTOR DE IDIOMA ---
 option_lang = st.selectbox(
-    "🌍 Selecciona el idioma",
-    ("🇪🇸 Español", "🇬🇧 English"),
+    "🌍 Selecciona el idioma de transmisión",
+    ("🇪🇸 Español - Canal Solar", "🇬🇧 English - Galactic Channel"),
 )
 
-if option_lang.startswith("🇪🇸"):
-    lg = "es"
-else:
-    lg = "en"
+lg = "es" if option_lang.startswith("🇪🇸") else "en"
 
-# Conversor de texto a voz
+# --- FUNCIÓN DE CONVERSIÓN ---
 def text_to_speech(text, lg):
     tts = gTTS(text, lang=lg)
-    try:
-        my_file_name = text[0:20].replace(" ", "_")
-    except:
-        my_file_name = "audio"
+    my_file_name = text[0:20].replace(" ", "_") if text else "audio"
     file_path = f"temp/{my_file_name}.mp3"
     tts.save(file_path)
     return file_path
 
-# Botón de conversión
-if st.button("🎙️ Convertir a Audio"):
+# --- BOTÓN DE CONVERSIÓN ---
+if st.button("🚀 Transmitir Mensaje por Voz"):
     if text.strip() == "":
-        st.warning("⚠️ Por favor escribe un texto para convertirlo.")
+        st.warning("⚠️ Ingresa un texto antes de transmitir tu mensaje interestelar.")
     else:
-        with st.spinner("🔊 Generando tu audio..."):
+        with st.spinner("🛰️ Transmitiendo señal de voz a través del espacio..."):
             file_path = text_to_speech(text, lg)
-            st.success("✅ Audio generado con éxito!")
+            st.success("✅ Señal recibida: ¡audio generado con éxito!")
 
             # Reproducir
-            audio_file = open(file_path, "rb")
-            audio_bytes = audio_file.read()
-            st.markdown("### ▶️ Escucha tu audio:")
+            with open(file_path, "rb") as audio_file:
+                audio_bytes = audio_file.read()
+            st.markdown("### 🎧 Escucha tu transmisión:")
             st.audio(audio_bytes, format="audio/mp3")
 
             # Descargar
@@ -84,7 +103,7 @@ if st.button("🎙️ Convertir a Audio"):
             href = f'<a href="data:application/octet-stream;base64,{bin_str}" download="{os.path.basename(file_path)}">📥 Descargar archivo de audio</a>'
             st.markdown(href, unsafe_allow_html=True)
 
-# Función para limpiar archivos viejos
+# --- LIMPIAR ARCHIVOS ANTIGUOS ---
 def remove_files(n):
     mp3_files = glob.glob("temp/*.mp3")
     if mp3_files:
@@ -94,5 +113,8 @@ def remove_files(n):
             if os.stat(f).st_mtime < now - n_days:
                 os.remove(f)
 
-# Limpiar archivos de más de 7 días
 remove_files(7)
+
+# --- PIE ---
+st.markdown("---")
+st.markdown("<p style='text-align:center; color:#8f9bb3;'>🌌 Proyecto IA Galáctica · Transmisión de voz por gTTS · 2025</p>", unsafe_allow_html=True)
